@@ -1,3 +1,5 @@
 module MiniKanren
-  VERSION = "0.0.1"
+  module Version
+    VERSION = "0.0.1"
+  end
 end
