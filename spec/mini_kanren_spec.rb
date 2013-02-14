@@ -44,119 +44,108 @@ describe "Core" do
       run(q, all(eq(x, q), eq(true, x))).should == [true]
     end
   end
+
+  it "conde()" do
+    MiniKanren.exec do
+      q, x = fresh(2)
+
+      run(q, eq(x == q, q)).should == [false]
+
+      run(q, conde(all(fail, succeed),
+                   all(succeed, fail))).should == []
+
+      run(q, conde(all(fail, fail),
+                   all(succeed, succeed))).should == ["_.0"]
+
+      run(q, conde(all(succeed, succeed),
+                   all(fail, fail))).should == ["_.0"]
+
+      run(q, conde(all(eq(:olive, q), succeed),
+                   all(eq(:oil, q), succeed))).should == [:olive, :oil]
+
+      run(1, q, conde(all(eq(:olive, q), succeed),
+                      all(eq(:oil, q), succeed))).should == [:olive]
+
+      run(q, conde(all(eq(:virgin, q), fail),
+                   all(eq(:olive, q), succeed),
+                   all(succeed, succeed),
+                   all(eq(:oil, q), succeed))).should == [:olive, "_.0", :oil]
+
+      run(q, conde(all(eq(:olive, q), succeed),
+                   all(succeed, succeed),
+                   all(eq(:oil, q), succeed))).should == [:olive, "_.0", :oil]
+
+      run(2, q, conde(all(eq(:extra, q), succeed),
+                      all(eq(:virgin, q), fail),
+                      all(eq(:olive, q), succeed),
+                      all(eq(:oil, q), succeed))).should == [:extra, :olive]
+
+
+      x, y = fresh(2)
+      run(q, conde(all(eq(:split, x), succeed),
+                   all(eq(:pea, y)),
+                   all(eq([x, y], q))))#.should == [[:split, :pea]]
+
+      run(q, conde(conde(all(eq(:split, x), eq(:pea, y)),
+                         all(eq(:navy, x), eq(:bean, y))),
+                         eq([x, y], q)))#.should == [[:split, :pea], [:navy, :bean]]
+      run(q, all(
+            conde(
+              all(eq(:split, x), eq(:pea, y)),
+              all(eq(:navy, x), eq(:bean, y))),
+            eq([x, y, :soup], q)))#.should == [[:split, :pea, :soup], [:navy, :bean, :soup]]
+      def teacupo(x)
+        conde(
+          all(eq(:tea, x), succeed),
+          all(eq(:cup, x), succeed))
+      end
+
+      run(q, teacupo(q)).should == [:tea, :cup]
+
+      run(q, all(
+            conde(
+              all(teacupo(x), eq(true, y), succeed),
+              all(eq(false, x), eq(true, y))),
+            eq([x, y], q))).should ==
+                 [[false, true], [:tea, true], [:cup, true]]
+
+      x, y, z = fresh(3)
+      x_ = fresh
+      run(q, all(
+            conde(
+              all(eq(y, x), eq(z, x_)),
+              all(eq(y, x_), eq(z, x))),
+            eq([y, z], q))).should ==
+                   [["_.0", "_.1"], ["_.0", "_.1"]]
+
+      run(q, all(
+            conde(
+              all(eq(y, x), eq(z, x_)),
+              all(eq(y, x_), eq(z, x))),
+            eq(false, x),
+            eq([y, z], q))).should ==
+       [[false, "_.0"], ["_.0", false]]
+
+      a = eq(true, q)
+      b = eq(false, q)
+      run(q, b).should == [false]
+
+      x = fresh
+      b = all(
+            eq(x, q),
+            eq(false, x))
+      run(q, b).should == [false]
+
+      x, y = fresh(2)
+      run(q, eq([x, y], q)).should == [["_.0", "_.1"]]
+
+      v, w = fresh(2)
+      x, y = v, w
+      run(q, eq([x, y], q)).should == [["_.0", "_.1"]]
+
+    end
+  end
 end
-#
-#  def test_any
-#    q, x = fresh(2)
-#
-#    assert_equal(infer(q, eq(x == q, q)), [false])
-#
-#    assert_equal(infer(q, any(
-#                              all(fail, succeed),
-#                              all(succeed, fail))),
-#                 [])
-#    assert_equal(infer(q, any(
-#                              all(fail, fail),
-#                              all(succeed, succeed))),
-#                 ["_.0"])
-#    assert_equal(infer(q, any(
-#                              all(succeed, succeed),
-#                              all(fail, fail))),
-#                 ["_.0"])
-#    assert_equal(infer(q, any(
-#                              all(eq(:olive, q), succeed),
-#                              all(eq(:oil, q), succeed))),
-#                 [:olive, :oil])
-#    assert_equal(infer(1, q, any(
-#                                 all(eq(:olive, q), succeed),
-#                                 all(eq(:oil, q), succeed))),
-#                 [:olive])
-#    assert_equal(infer(q, any(
-#                              all(eq(:virgin, q), fail),
-#                              all(eq(:olive, q), succeed),
-#                              all(succeed, succeed),
-#                              all(eq(:oil, q), succeed))),
-#                 [:olive, "_.0", :oil])
-#    assert_equal(infer(q, any(
-#                              all(eq(:olive, q), succeed),
-#                              all(succeed, succeed),
-#                              all(eq(:oil, q), succeed))),
-#                 [:olive, "_.0", :oil])
-#    assert_equal(infer(2, q, any(
-#                              all(eq(:extra, q), succeed),
-#                              all(eq(:virgin, q), fail),
-#                              all(eq(:olive, q), succeed),
-#                              all(eq(:oil, q), succeed))),
-#                 [:extra, :olive])
-#    x, y = fresh(2)
-#    assert_equal(infer(q, all(
-#                              eq(:split, x),
-#                              eq(:pea, y),
-#                              eq([x, y], q))),
-#                 [[:split, :pea]])
-#    assert_equal(infer(q, all(
-#                              any(
-#                                all(eq(:split, x), eq(:pea, y)),
-#                                all(eq(:navy, x), eq(:bean, y))),
-#                              eq([x, y], q))),
-#                 [[:split, :pea], [:navy, :bean]])
-#    assert_equal(infer(q, all(
-#                              any(
-#                                all(eq(:split, x), eq(:pea, y)),
-#                                all(eq(:navy, x), eq(:bean, y))),
-#                              eq([x, y, :soup], q))),
-#                 [[:split, :pea, :soup], [:navy, :bean, :soup]])
-#
-#    def teacupo(x)
-#      any(
-#        all(eq(:tea, x), succeed),
-#        all(eq(:cup, x), succeed))
-#    end
-#
-#    assert_equal(infer(q, teacupo(q)), [:tea, :cup])
-#
-#    assert_equal(infer(q, all(
-#                              any(
-#                                all(teacupo(x), eq(true, y), succeed),
-#                                all(eq(false, x), eq(true, y))),
-#                              eq([x, y], q))),
-#                 [[false, true], [:tea, true], [:cup, true]])
-#
-#    x, y, z = fresh(3)
-#    x_ = fresh
-#    assert_equal(infer(q, all(
-#                              any(
-#                                all(eq(y, x), eq(z, x_)),
-#                                all(eq(y, x_), eq(z, x))),
-#                              eq([y, z], q))),
-#                 [["_.0", "_.1"], ["_.0", "_.1"]])
-#
-#    assert_equal(infer(q, all(
-#                              any(
-#                                all(eq(y, x), eq(z, x_)),
-#                                all(eq(y, x_), eq(z, x))),
-#                              eq(false, x),
-#                              eq([y, z], q))),
-#                 [[false, "_.0"], ["_.0", false]])
-#
-#    a = eq(true, q)
-#    b = eq(false, q)
-#    assert_equal(infer(q, b), [false])
-#
-#    x = fresh
-#    b = all(
-#          eq(x, q),
-#          eq(false, x))
-#    assert_equal(infer(q, b), [false])
-#
-#    x, y = fresh(2)
-#    assert_equal(infer(q, eq([x, y], q)), [["_.0", "_.1"]])
-#
-#    v, w = fresh(2)
-#    x, y = v, w
-#    assert_equal(infer(q, eq([x, y], q)), [["_.0", "_.1"]])
-#  end
-#
 #  def test_functions
 #    q = fresh
 #
