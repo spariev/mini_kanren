@@ -2,7 +2,7 @@
 
 ## An implemention of the MiniKanren relational programming DSL in Ruby
 
-<a href="http://minikanren.org/">MiniKanren</a> will make you think. It's a system designed to integrate with its host language. In this case, it allows you to construct logical programming bits inside your Ruby bobs.
+<a href="http://minikanren.org/">MiniKanren</a> will make you think. It's a DSLfor relational programming designed to integrate with its host language. In this case, it allows you to construct relational programming bits inside your Ruby bobs.
 
 ### Credits
 
