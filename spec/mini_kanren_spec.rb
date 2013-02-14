@@ -1,55 +1,50 @@
 require "rspec"
 require 'mini_kanren'
 require 'mini_kanren/core'
-describe "Core" do
 
-  it "should succeed on true" do
+describe "Core" do
+  it "all()" do
     MiniKanren.exec do
       q = fresh
       run(q,eq(true, q)).should == [true]
+      run(q, fail).should == []
+      run(q, eq(true, q)).should == [true]
+      run(q, all(fail, eq(true, q))).should == []
+      run(q, all(succeed, eq(true, q))).should == [true]
+      run(q, all(succeed, eq(:corn, q))).should == [:corn]
+      run(q, all(fail, eq(:corn, q))).should == []
+      run(q, all(succeed, eq(false, q))).should == [false]
+
+      x = fresh
+      run(q, eq(true,q))
+      run(q, all(eq(true, x), eq(true, q))).should == [true]
+      run(q, all(eq(x, true), eq(true, q))).should == [true]
+      run(q, succeed).should == ["_.0"]
+      run(q, succeed).should == ["_.0"]
+
+      x, y = fresh(2)
+      run(q, eq([x, y], q)).should == [["_.0", "_.1"]]
+      t, u = fresh(2)
+      run(q, eq([t, u], q)).should == [["_.0", "_.1"]]
+
+      x = fresh
+      y = x
+      x = fresh
+      run(q, eq([y, x, y], q)).should == [["_.0", "_.1", "_.0"]]
+
+      run(q, all(eq(false, q), eq(true, q))).should == []
+      run(q, all(eq(false, q), eq(false, q))).should == [false]
+
+      x = q
+      run(q, eq(true, x)).should == [true]
+
+      x = fresh
+      run(q, eq(x, q)).should == ["_.0"]
+      run(q, all(eq(true, x), eq(x, q))).should == [true]
+      run(q, all(eq(x, q), eq(true, x))).should == [true]
     end
   end
-
-#  class TC_MiniKanren < Test::Unit::TestCase
-#  include MiniKanren
-#
-#  def test_all
-#    q = fresh
-#    assert_equal(infer(q, fail), [])
-#    assert_equal(infer(q, eq(true, q)), [true])
-#    assert_equal(infer(q, all(fail, eq(true, q))), [])
-#    assert_equal(infer(q, all(succeed, eq(true, q))), [true])
-#    assert_equal(infer(q, all(succeed, eq(:corn, q))), [:corn])
-#    assert_equal(infer(q, all(fail, eq(:corn, q))), [])
-#    assert_equal(infer(q, all(succeed, eq(false, q))), [false])
-#    x = fresh
-#    assert_equal(infer(q, all(eq(true, x), eq(true, q))), [true])
-#    assert_equal(infer(q, all(eq(x, true), eq(true, q))), [true])
-#
-#    assert_equal(infer(q, succeed), ["_.0"])
-#    assert_equal(infer(q, succeed), ["_.0"])
-#
-#    x, y = fresh(2)
-#    assert_equal(infer(q, eq([x, y], q)), [["_.0", "_.1"]])
-#    t, u = fresh(2)
-#    assert_equal(infer(q, eq([t, u], q)), [["_.0", "_.1"]])
-#
-#    x = fresh
-#    y = x
-#    x = fresh
-#    assert_equal(infer(q, eq([y, x, y], q)), [["_.0", "_.1", "_.0"]])
-#
-#    assert_equal(infer(q, all(eq(false, q), eq(true, q))), [])
-#    assert_equal(infer(q, all(eq(false, q), eq(false, q))), [false])
-#
-#    x = q
-#    assert_equal(infer(q, eq(true, x)), [true])
-#
-#    x = fresh
-#    assert_equal(infer(q, eq(x, q)), ["_.0"])
-#    assert_equal(infer(q, all(eq(true, x), eq(x, q))), [true])
-#    assert_equal(infer(q, all(eq(x, q), eq(true, x))), [true])
-#  end
+end
 #
 #  def test_any
 #    q, x = fresh(2)
@@ -214,4 +209,4 @@ describe "Core" do
 #    }
 #  end
 #end
-end
+
