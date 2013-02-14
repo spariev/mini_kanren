@@ -1,29 +1,12 @@
-# MiniKanren
+# mini_kanren.rb
 
-TODO: Write a gem description
+## An implemention of the MiniKanren relational programming DSL in Ruby
 
-## Installation
+### Credits
 
-Add this line to your application's Gemfile:
+Original implementation by Scott Dial.
+Considerable cleanup and move to GitHub by Sergey Pariev.
 
-    gem 'mini_kanren'
+### Tests
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install mini_kanren
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+`rake spec`
