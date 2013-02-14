@@ -145,57 +145,56 @@ describe "Core" do
 
     end
   end
-end
-#  def test_functions
-#    q = fresh
-#
-#    def nullo(l)
-#      eq(l, [])
-#    end
-#
-#    def conso(a, d, p)
-#      eq([a, d], p)
-#    end
-#
-#    def pairo(p)
-#      a, d = fresh(2)
-#      conso(a, d, p)
-#    end
-#
-#    def cdro(p, d)
-#      a = fresh
-#      conso(a, d, p)
-#    end
-#
-#    def caro(p, a)
-#      d = fresh
-#      conso(a, d, p)
-#    end
-#
-#    assert_equal(infer(q, all(pairo([q, q]), eq(true, q))), [true])
-#    assert_equal(infer(q, all(pairo([]), eq(true, q))), [])
-#
-#    def listo(l)
-#      d = fresh
-#      any(
-#        all(nullo(l), succeed),
-#        all(pairo(l), cdro(l, d), defer(method(:listo), d)))
-#    end
-#
-#    assert_equal(infer(q, listo([:a, [:b, [q, [:d, []]]]])), ["_.0"])
-#
-#    assert_equal(infer(5, q, listo([:a, [:b, [:c, q]]])),
-#                 [[],
-#                  ["_.0", []],
-#                  ["_.0", ["_.1", []]],
-#                  ["_.0", ["_.1", ["_.2", []]]],
-#                  ["_.0", ["_.1", ["_.2", ["_.3", []]]]]])
-#  end
-#
-#  def test_nesting
-#    fresh { |q|
-#      assert_equal(infer(q, fresh { |q| eq(q, false) }), ["_.0"])
-#    }
-#  end
-#end
 
+  it "extensions" do
+    MiniKanren.exec do
+      q = fresh
+
+      def nullo(l)
+        eq(l, [])
+      end
+
+      def conso(a, d, p)
+        eq([a, d], p)
+      end
+
+      def pairo(p)
+        a, d = fresh(2)
+        conso(a, d, p)
+      end
+
+      def cdro(p, d)
+        a = fresh
+        conso(a, d, p)
+      end
+
+      def caro(p, a)
+        d = fresh
+        conso(a, d, p)
+      end
+
+      run(q, all(pairo([q, q]), eq(true, q))).should == [true]
+      run(q, all(pairo([]), eq(true, q))).should == []
+
+      def listo(l)
+        d = fresh
+        conde(
+          all(nullo(l), succeed),
+          all(pairo(l), cdro(l, d), defer(method(:listo), d)))
+      end
+
+      run(q, listo([:a, [:b, [q, [:d, []]]]])).should == ["_.0"]
+
+      run(5, q, listo([:a, [:b, [:c, q]]])).should ==
+                   [[],
+                    ["_.0", []],
+                    ["_.0", ["_.1", []]],
+                    ["_.0", ["_.1", ["_.2", []]]],
+                    ["_.0", ["_.1", ["_.2", ["_.3", []]]]]]
+
+      fresh { |q|
+        run(q, fresh { |q| eq(q, false) }).should == ["_.0"]
+      }
+    end
+  end
+end
