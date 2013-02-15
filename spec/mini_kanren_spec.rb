@@ -80,20 +80,25 @@ describe "Core" do
                       all(eq(:olive, q), succeed),
                       all(eq(:oil, q), succeed))).should == [:extra, :olive]
 
+      x = fresh
+      y = fresh
+      run(q, conde(all(eq(:split, x),
+                   eq(:pea, y),
+                   eq([x, y], q)))).should == [[:split, :pea]]
 
-      x, y = fresh(2)
-      run(q, conde(all(eq(:split, x), succeed),
-                   all(eq(:pea, y)),
-                   all(eq([x, y], q))))#.should == [[:split, :pea]]
+      run(q, all(
+                conde(
+                  all(eq(:split, x), eq(:pea, y)),
+                  all(eq(:navy, x), eq(:bean, y)))),
+                  eq([x, y], q)).should == [[:split, :pea], [:navy, :bean]]
 
-      run(q, conde(conde(all(eq(:split, x), eq(:pea, y)),
-                         all(eq(:navy, x), eq(:bean, y))),
-                         eq([x, y], q)))#.should == [[:split, :pea], [:navy, :bean]]
       run(q, all(
             conde(
               all(eq(:split, x), eq(:pea, y)),
               all(eq(:navy, x), eq(:bean, y))),
-            eq([x, y, :soup], q)))#.should == [[:split, :pea, :soup], [:navy, :bean, :soup]]
+            eq([x, y, :soup], q))).should == [[:split, :pea, :soup],
+                                              [:navy, :bean, :soup]]
+
       def teacupo(x)
         conde(
           all(eq(:tea, x), succeed),
