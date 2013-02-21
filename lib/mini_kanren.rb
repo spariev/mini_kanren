@@ -17,7 +17,7 @@ with this library; if not, write to the Free Software Foundation, Inc.,
 
 require "mini_kanren/version"
 require "mini_kanren/core"
-#require "mini_kanren/extras"
+require "mini_kanren/extras"
 
 module MiniKanren
   def self.exec(&block)
@@ -28,5 +28,4 @@ module MiniKanren
     include MiniKanren::Version
     include MiniKanren::Core
   end
-
 end
