@@ -184,6 +184,15 @@ module MiniKanren
       lambda { |s| lambda { mplus_all(goals, s) } }
     end
 
+    # project(x, lambda { |x| eq(q, x + x) })
+    def project(u, block)
+      lambda do |s|
+        walked_u = walk_all(u, s)
+        g = block.call(walked_u)
+        g.call(s)
+      end
+    end
+
     def defer(func, *args)
       if func.arity >= 0
         fixed_arity = func.arity
@@ -256,4 +265,3 @@ module MiniKanren
 end
 extend MiniKanren::Core
 Kernel.send(:include, MiniKanren::Core)
-

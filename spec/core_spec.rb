@@ -151,6 +151,15 @@ describe "Core" do
     end
   end
 
+  it "project()" do
+    MiniKanren.exec do
+      q, x = fresh(2)
+
+      run(q, all(eq(x,5), project(x, lambda { |x| eq(q, x + x) }))).should == [10]
+      run(q, all(eq(x,"Hello"), project(x, lambda { |x| eq(q, x + x) }))).should == ["HelloHello"]
+    end
+  end
+
   it "extensions" do
     MiniKanren.exec do
       q = fresh
