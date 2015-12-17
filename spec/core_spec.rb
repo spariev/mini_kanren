@@ -160,6 +160,70 @@ describe "Core" do
     end
   end
 
+  it "hash" do
+    MiniKanren.exec do
+      h1 = {}
+      h2 = {}
+      q = fresh
+      run(q, eq(h1, h2)).should == ["_.0"]
+
+      h1 = {hi: 1}
+      h2 = {hi: 1}
+      q = fresh
+      run(q, eq(h1, h2)).should == ["_.0"]
+
+      x = fresh
+      h1 = {hi: 1, you: x}
+      h2 = {hi: 1, you: x}
+      q = fresh
+      run(q, eq(h1, h2)).should == ["_.0"]
+
+      h1 = {hi: 1, you: fresh}
+      h2 = {hi: 1, you: fresh}
+      q = fresh
+      run(q, eq(h1, h2)).should == ["_.0"]
+
+      x,y = fresh(2)
+      h1 = {hi: 1, you: x}
+      h2 = {hi: 1, you: y}
+      q = fresh
+      run(q, eq(h1, h2)).should == ["_.0"]
+
+      x,y = fresh(2)
+      h1 = {hi: 1, you: x}
+      h2 = {hi: 1, you: y}
+      q = fresh
+      run(q, eq(h1, h2), eq(x, 2)).should == ["_.0"]
+
+      x,y = fresh(2)
+      h1 = {hi: 1, you: x}
+      h2 = {hi: 1, you: y}
+      q = fresh
+      run(q, eq(q, h1), eq(h1, h2), eq(x, 2)).should == [{hi: 1, you: 2}]
+
+      h1 = {hi: 1, you: fresh}
+      h2 = {hi: 1, you: fresh}
+      q = fresh
+      run(q, eq(q, h1), eq(h1, h2), eq(h1[:you], 3)).should == [{hi: 1, you: 3}]
+
+      h1 = {hi: 1, you: [fresh, "peas"]}
+      h2 = {hi: 1, you: ["sweetcorn", fresh]}
+      q = fresh
+      run(q, eq(q, h1), eq(h1, h2)).should == [{hi: 1, you: ["sweetcorn", "peas"]}]
+
+      h1 = {hi: 1, you: {fruit: fresh, veg: "peas"}}
+      h2 = {hi: 1, you: {fruit: "apple", veg: fresh}}
+      q = fresh
+      run(q, eq(q, h1), eq(h1, h2)).should == [{hi: 1, you: {fruit: "apple", veg: "peas"}}]
+
+      h1 = {hi: 1, you: fresh}
+      h2 = {hi: 1, you: {fruit: "apple", veg: fresh}}
+      q = fresh
+      run(q, eq(q, h1), eq(h1, h2)).should == [{hi: 1, you: {fruit: "apple", veg: "_.0"}}]
+
+    end
+  end
+
   it "extensions" do
     MiniKanren.exec do
       q = fresh
