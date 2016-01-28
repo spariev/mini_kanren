@@ -45,6 +45,23 @@ module MiniKanren
             break if s.nil? }
           return s
         end
+      elsif u.instance_of?(Hash) && v.instance_of?(Hash)
+        # If not the same length then can't be equal
+        if u.length != v.length
+          return nil
+        # If both empty, trivially equal
+        elsif u.empty? && v.empty?
+          return s
+        # If they don't have the same keys, can't unify
+        elsif !(u.keys.all?{|k| v.include?(k)})
+          return nil
+        # Same keys, so each value must unify
+        else
+          u.each { |key, val|
+            unify(val, v[key], s)
+            break if s.nil? }
+          return s
+        end
       elsif u == v
         s
       else
@@ -72,6 +89,12 @@ module MiniKanren
       elsif v.instance_of?(Array)
         r = v.find { |vv| occurs_check(x, vv, s) == true }
         !r.nil?
+      elsif v.instance_of?(Hash)
+        check = false
+        v.each { |key, vv|
+          check = occurs_check(x, vv, s)
+          break if check}
+        return check
       else
         false
       end
@@ -90,6 +113,9 @@ module MiniKanren
       elsif v.instance_of?(Array) && v.length
         v.each { |v| s = reify_s(v, s) }
         s
+      elsif v.instance_of?(Hash) && !v.empty?
+        v.each { |key, val| s = reify_s(val, s) }
+        s
       else
         s
       end
@@ -105,6 +131,10 @@ module MiniKanren
 
       if v.instance_of?(Array)
         v.map { |v| walk_all(v, s) }
+      elsif v.instance_of?(Hash)
+        Hash[(
+          v.map { |key, val| [key, walk_all(val, s)] }
+        )]
       else
         v
       end
@@ -184,6 +214,15 @@ module MiniKanren
       lambda { |s| lambda { mplus_all(goals, s) } }
     end
 
+    # project(x, lambda { |x| eq(q, x + x) })
+    def project(u, block)
+      lambda do |s|
+        walked_u = walk_all(u, s)
+        g = block.call(walked_u)
+        g.call(s)
+      end
+    end
+
     def defer(func, *args)
       if func.arity >= 0
         fixed_arity = func.arity
@@ -256,4 +295,3 @@ module MiniKanren
 end
 extend MiniKanren::Core
 Kernel.send(:include, MiniKanren::Core)
-
