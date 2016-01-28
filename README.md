@@ -13,3 +13,5 @@
 ### Tests
 
 `rake spec`
+
+[![Circle CI](https://circleci.com/gh/spariev/mini_kanren.svg?style=svg)](https://circleci.com/gh/spariev/mini_kanren)
